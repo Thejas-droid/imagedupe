@@ -1,6 +1,11 @@
 # ImageDupe
 
-ImageDupe is a local/self-hosted near-duplicate image search engine built around deterministic perceptual fingerprints and **Hamming distance**. It implements the supplied v1 PRD as a native Python application: browser UI, HTTP API, CLI, SQLite catalog, multicore fingerprinting, immutable binary-index generations, incremental cache reuse, and exact Hamming re-ranking.
+ImageDupe is a local/self-hosted near-duplicate image search engine built around deterministic perceptual fingerprints and **Hamming distance**. It implements a native Python application: browser UI, HTTP API, CLI, SQLite catalog, multicore fingerprinting, immutable binary-index generations, incremental cache reuse, and exact Hamming re-ranking.
+
+> [!TIP]
+> **[Download ImageDupe for Windows — ImageDupe-Setup.exe](https://drive.google.com/file/d/1i6mVGvJAXd1AcRNpYTzH175FVdM40zIZ/view)**
+>
+> For Windows 10/11 (64-bit). Download the installer from Google Drive, run it, then open ImageDupe from the desktop or Start menu. Python and dependencies are included. Scanning and searching work offline, and your photos stay on your computer.
 
 ## What is implemented
 
@@ -19,7 +24,7 @@ ImageDupe is a local/self-hosted near-duplicate image search engine built around
 
 ## Windows desktop app (offline)
 
-Download **ImageDupe-Setup.exe** from the release downloads, run it, then open **ImageDupe** from the desktop or Start menu. Python and the image-processing dependencies are included. No terminal, account, internet connection, or hosting subscription is needed to use the app.
+Download **[ImageDupe-Setup.exe](https://drive.google.com/file/d/1i6mVGvJAXd1AcRNpYTzH175FVdM40zIZ/view)** from Google Drive, run it, then open **ImageDupe** from the desktop or Start menu. Python and the image-processing dependencies are included. No terminal, account, internet connection, or hosting subscription is needed to use the app.
 
 ImageDupe opens in its own desktop window with a custom app icon and a bundled Qt renderer. In **Image folders → Add image folder**, click **Choose folder…**, select your local photo folder, and click **Add folder & scan images**. Close the window to stop the application. Opening ImageDupe again brings the existing window forward. CSV and JSON exports use a native Save dialog.
 
@@ -45,7 +50,7 @@ Open <http://127.0.0.1:8765>.
 ### Using the browser
 
 1. Choose **Image folders → Add image folder**.
-2. Paste the full path to a folder containing JPG, PNG, or WEBP images. On Windows, copy it from File Explorer’s address bar (for example `C:\Users\theja\Downloads`). Quoted paths and spaces are accepted. The folder name is optional.
+2. Paste the full path to a folder containing JPG, PNG, or WEBP images. On Windows, copy it from File Explorer’s address bar (for example `C:\Pictures`). Quoted paths and spaces are accepted. The folder name is optional.
 3. Choose **Add folder & scan images**. ImageDupe scans the folder and automatically prepares its search index. Wait for **Ready to search**.
 4. Choose **Search this folder**, select or drop a reference image, and choose **Find similar images**.
 

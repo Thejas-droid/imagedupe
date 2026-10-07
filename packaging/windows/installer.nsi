@@ -52,6 +52,8 @@ Function .onInit
   ${IfNot} ${Errors}
     StrCpy $TestMode "1"
   ${EndIf}
+  ; Unattended installs must not depend on displaying a confirmation dialog.
+  IfSilent continue
   MessageBox MB_OKCANCEL "Close ImageDupe before installing or updating. Your saved collections and photos will be kept." /SD IDOK IDOK continue
   Abort
   continue:

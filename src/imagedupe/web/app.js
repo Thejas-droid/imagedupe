@@ -157,7 +157,7 @@ $('#newForm').onsubmit=async event=>{
     event.target.reset();event.target.hidden=true;notice('Folder added. Starting the scan…');await loadCollections();await scan(created.id);
   }catch(error){
     if(created){notice(`Folder added, but the scan could not start: ${error.message}. Use Scan images to try again.`,true);}
-    else{const message=error.message.includes('not a directory')?'We couldn’t find that folder. Copy its full path from File Explorer (for example C:\\Users\\theja\\Downloads) and make sure it exists on the computer running ImageDupe.':error.message;$('#formError').textContent=message;$('#formError').hidden=false;$('#croot').setAttribute('aria-invalid','true');$('#croot').focus();}
+    else{const message=error.message.includes('not a directory')?'We couldn’t find that folder. Copy its full path from File Explorer (for example C:\\Pictures) and make sure it exists on the computer running ImageDupe.':error.message;$('#formError').textContent=message;$('#formError').hidden=false;$('#croot').setAttribute('aria-invalid','true');$('#croot').focus();}
   }finally{button.disabled=false;button.textContent='Add folder & scan images';}
 };
 
