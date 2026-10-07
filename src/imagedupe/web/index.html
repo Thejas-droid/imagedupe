@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ImageDupe</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header>
+  <div class="brand"><b aria-hidden="true">ID</b><span><strong>ImageDupe</strong><small>Your local image finder</small></span></div>
+  <nav aria-label="Primary">
+    <button data-page="search" class="active" aria-current="page">Search</button>
+    <button data-page="collections">Image folders</button>
+    <button data-page="settings">Settings</button>
+  </nav>
+  <span id="health" class="health" aria-live="polite">Checking…</span>
+</header>
+<main id="main">
+  <p id="desktopNote" class="desktop-note" hidden>Running offline on your computer. Close this window to exit ImageDupe.</p>
+  <section id="search" class="page active" aria-labelledby="searchTitle">
+    <div class="eyebrow">LESS SEARCHING. MORE FINDING.</div><h1 id="searchTitle">Find the photo you’re looking for.</h1>
+    <p class="lede">Choose an image. Find duplicates and similar photos in your image folders.</p>
+    <div id="onboarding" class="welcome panel" hidden>
+      <div><span class="eyebrow">START HERE</span><h2>Add your first image folder</h2><p>Tell ImageDupe where your photos are. We’ll scan the folder so you can search it.</p><button id="startSetup" class="primary" type="button">Add an image folder →</button></div>
+      <ol class="steps"><li><b>1</b><span>Add a folder<small>Pictures, Downloads, or any photo folder</small></span></li><li><b>2</b><span>Let us prepare<small>We scan your images and set up search</small></span></li><li><b>3</b><span>Find similar photos<small>Drop in an image to start searching</small></span></li></ol>
+    </div>
+    <div class="panel search-panel">
+      <div role="tablist" aria-label="Search mode" class="tabs">
+        <button id="imageTab" role="tab" aria-selected="true" aria-controls="imagePanel" tabindex="0">Use an image</button>
+        <button id="hashTab" role="tab" aria-selected="false" aria-controls="hashPanel" tabindex="-1">Use a hash · advanced</button>
+      </div>
+      <div id="imagePanel" role="tabpanel" aria-labelledby="imageTab">
+        <label id="drop" tabindex="0" role="button" aria-label="Choose a reference image">
+          <strong>Drop a photo here, or click to choose</strong>
+          <small>JPG, PNG, or WEBP · Your reference image is used for this search</small>
+          <input id="file" tabindex="-1" type="file" accept="image/jpeg,image/png,image/webp">
+        </label>
+        <div id="preview" class="preview" hidden>
+          <img id="previewImg" alt="Query preview">
+          <div><strong id="previewName"></strong><small id="previewMeta"></small></div>
+          <button id="remove" type="button">Remove</button>
+        </div>
+      </div>
+      <div id="hashPanel" role="tabpanel" aria-labelledby="hashTab" hidden>
+        <label>Perceptual hash
+          <textarea id="hash" rows="3" spellcheck="false" placeholder="phash:256:0123abcd…"></textarea>
+        </label>
+        <small>Raw hex is accepted when the selected collection determines the fingerprint specification.</small>
+      </div>
+      <div class="controls">
+        <label>Search in<select id="collection" aria-label="Image folder"></select></label>
+        <label>Minimum similarity<select id="matchType" aria-describedby="matchHelp"><option value="60" selected>60% or higher</option><option value="70">70% or higher</option><option value="80">80% or higher</option><option value="90">90% or higher</option><option value="100">100% (same fingerprint)</option><option value="nearest">Show all · exploration</option></select></label>
+        <label>Maximum results<select id="k"><option value="10">Up to 10</option><option value="20" selected>Up to 20</option><option value="50">Up to 50</option><option value="100">Up to 100</option></select></label>
+        <button id="go" type="button" class="primary">Find similar images →</button>
+      </div>
+      <p id="matchHelp" class="hint">Images below 60% similarity are hidden. Results won’t be padded to reach the maximum.</p>
+      <p id="searchHelp" class="hint" aria-live="polite">Choose an image and an image folder to begin.</p>
+      <details class="advanced"><summary>Advanced search options</summary><div class="advanced-fields">
+        <label>Search engine<select id="backend"><option value="auto">Automatic (recommended)</option><option value="exact">Exact (FAISS/NumPy)</option><option value="hnsw">HNSW (FAISS BinaryHNSW)</option><option value="ngt">NGT (Hamming)</option></select></label>
+        <label>Custom maximum difference (Hamming distance)<input id="max" type="number" min="0" step="1" placeholder="Use minimum similarity" aria-describedby="customMatchHelp"><small id="customMatchHelp">Optional. Overrides Minimum similarity. Lower values are stricter; 0 requires the same visual fingerprint.</small></label>
+      </div></details>
+      <p id="backendHint" class="hint"></p>
+      <p id="status" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="results-head">
+      <div><h2 id="resultsTitle" tabindex="-1">Your matches</h2><small>Closest matches appear first. Similarity measures visual fingerprint agreement, not duplicate probability.</small></div>
+      <div class="actions" aria-label="Result actions">
+        <button id="grid" type="button" aria-pressed="true">Grid</button>
+        <button id="list" type="button" aria-pressed="false">List</button>
+        <button id="json" type="button">Export JSON</button>
+        <button id="csv" type="button">Export CSV</button>
+      </div>
+    </div>
+    <div id="results" class="grid" aria-live="polite"><div class="empty-state"><span class="empty-icon" aria-hidden="true">▧</span><h3>Your matches will appear here</h3><p>Add an image folder, then choose a reference photo above.</p></div></div>
+    <details class="advanced"><summary>Search statistics</summary><div id="summary" class="summary" aria-label="Collection and search status"></div></details>
+  </section>
+
+  <section id="collections" class="page" aria-labelledby="collectionsTitle">
+    <div class="title"><div><div class="eyebrow">YOUR PHOTO LIBRARY</div><h1 id="collectionsTitle">Image folders</h1><p>A collection is a folder of images you can search. Your original files stay in place.</p></div><button id="new" type="button" class="primary">+ Add image folder</button></div>
+    <div id="folderNotice" class="notice" role="status" aria-live="polite" hidden></div>
+    <form id="newForm" class="panel collection-form" hidden>
+      <div class="form-heading"><span class="eyebrow">ADD A FOLDER · WE HANDLE THE SETUP</span><h2>Where are your photos?</h2><p>Paste a folder path from File Explorer. We’ll scan it and prepare it for search automatically.</p></div>
+      <label>Folder path<span class="folder-input"><input id="croot" required placeholder="C:\Users\theja\Downloads" aria-describedby="pathHelp formError" autocomplete="off"><button id="browseFolder" type="button" hidden>Choose folder…</button></span><small id="pathHelp">Windows: open the folder in File Explorer, click the address bar, then copy and paste the full path here. Spaces are OK. Use a folder, not an image file.</small></label>
+      <label>Folder name<input id="cname" maxlength="200" placeholder="e.g. My downloads"><small>Optional. If left blank, we’ll use the folder’s name.</small></label>
+      <label class="check"><input id="crecursive" type="checkbox" checked> Include images in subfolders</label>
+      <details class="advanced"><summary>Advanced folder options</summary><div class="advanced-fields">
+        <label>Image fingerprint<select id="cspec"><option value="phash-v1-256-exif-luma">pHash 256 (recommended)</option><option value="phash-v1-64-exif-luma">Compact</option></select></label>
+        <label>Search engine<select id="cbackend"><option value="auto">Automatic (recommended)</option><option value="exact">Exact</option><option value="hnsw">HNSW</option><option value="ngt">NGT</option></select></label>
+        <label>Skip files matching<input id="cexclude" placeholder="*.tmp, cache/**"><small>Optional patterns, separated by commas.</small></label>
+        <label class="check"><input id="csymlink" type="checkbox"> Follow folder links (symlinks)</label>
+      </div></details>
+      <p id="formError" class="form-error" role="alert" hidden></p>
+      <div class="actions"><button id="createFolder" class="primary" type="submit">Add folder &amp; scan images</button><button id="cancelNew" type="button">Cancel</button></div>
+      <small>Only JPG, PNG, and WEBP images are scanned. Larger folders can take a little longer.</small>
+    </form>
+    <div id="collectionCards" class="collection-cards"></div>
+  </section>
+
+  <section id="settings" class="page" aria-labelledby="settingsTitle">
+    <h1 id="settingsTitle">Settings</h1>
+    <p class="lede">Customize your search defaults. Most people can keep the recommended settings.</p>
+    <div class="settings-grid">
+      <form id="settingsForm" class="panel settings-form">
+        <fieldset><legend>Search defaults</legend>
+          <label>Default image folder<select id="defaultCollection"><option value="">None</option></select></label>
+          <label>Default number of results<input id="defaultK" type="number" min="1" max="1000"></label>
+          <label>Image comparison detail<select id="defaultSpec"><option value="phash-v1-256-exif-luma">Detailed (recommended)</option><option value="phash-v1-64-exif-luma">Compact</option></select></label>
+          <label>Preferred search engine<select id="defaultBackend"><option value="auto">Automatic (recommended)</option><option value="exact">Exact</option><option value="hnsw">HNSW</option><option value="ngt">NGT</option></select></label>
+        </fieldset>
+        <details class="advanced"><summary>Advanced performance settings</summary><fieldset><legend>Indexing & performance</legend>
+          <label>ANN tuning profile<select id="annProfile"><option value="fast">Fast</option><option value="balanced">Balanced</option><option value="high-recall">High recall</option></select></label>
+          <label>Worker count <small>0 = CPU count − 2</small><input id="workers" type="number" min="0" max="256"></label>
+          <label>Hash worker timeout (seconds)<input id="hashTimeout" type="number" min="1" max="3600"></label>
+          <label>CUDA mode<select id="cudaMode"><option>Auto</option><option>Off</option><option>On</option></select></label>
+        </fieldset>
+        </details><details class="advanced"><summary>Storage and limits</summary><fieldset><legend>Security & storage</legend>
+          <label>Query upload limit (MiB)<input id="uploadMiB" type="number" min="1"></label>
+          <label>Max query decoded pixels<input id="queryPixels" type="number" min="1000000"></label>
+          <label>Max collection decoded pixels<input id="ingestPixels" type="number" min="1000000"></label>
+          <label class="check"><input id="thumbCache" type="checkbox"> Persist thumbnail cache</label>
+          <label class="check"><input id="privacy" type="checkbox"> Hide absolute source paths in the browser</label>
+          <label>Logging<select id="logLevel"><option>DEBUG</option><option>INFO</option><option>WARNING</option><option>ERROR</option></select></label>
+          <label>Cache location<input id="cacheLocation" disabled></label>
+        </fieldset>
+        </details><button class="primary" type="submit">Save settings</button>
+      </form>
+      <details class="panel advanced"><summary>Technical diagnostics</summary><p>System information for troubleshooting.</p><pre id="doctor" tabindex="0">Loading diagnostics…</pre></details>
+    </div>
+  </section>
+</main>
+
+<dialog id="detailDialog"><div class="dialog-head"><h2 id="dialogTitle">Details</h2><button id="closeDialog" type="button" aria-label="Close details">×</button></div><div id="dialogBody"></div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

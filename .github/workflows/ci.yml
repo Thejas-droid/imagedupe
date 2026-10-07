@@ -1,0 +1,51 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  cpu-core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[test]'
+      - run: python scripts/audit_repo.py
+      - run: python -m compileall -q src tests benchmarks
+      - run: node --check src/imagedupe/web/app.js
+      - run: pytest
+      - run: imagedupe doctor --json
+
+  faiss-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[test,faiss]'
+      - run: pytest tests/conformance tests/integration tests/security
+      - run: imagedupe doctor --json
+
+  ngt-conformance:
+    # NGT is an optional runtime backend. This job exercises it on a host where
+    # its Python/native package is available without making NGT packaging on
+    # every supported OS a core-install prerequisite.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[test,ngt]'
+      - run: pytest tests/conformance/test_backend_roundtrip.py -q
+      - run: imagedupe doctor --json

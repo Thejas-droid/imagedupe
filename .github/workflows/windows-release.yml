@@ -1,0 +1,30 @@
+name: Windows offline application
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Install NSIS compiler
+        run: choco install nsis --yes --no-progress
+      - name: Build and test executable and installer
+        shell: pwsh
+        run: ./packaging/windows/build.ps1
+      - name: Test core and desktop integration
+        run: ./.build-venv/Scripts/python.exe -m pytest
+      - name: Upload Windows downloads
+        uses: actions/upload-artifact@v4
+        with:
+          name: ImageDupe-Windows-x64
+          path: release/*
+          if-no-files-found: error
+          retention-days: 30

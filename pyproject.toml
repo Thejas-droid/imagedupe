@@ -1,0 +1,45 @@
+[build-system]
+requires=["setuptools>=75","wheel"]
+build-backend="setuptools.build_meta"
+
+[project]
+name="imagedupe"
+version="1.1.1"
+description="Local near-duplicate image search engine using binary perceptual hashes and Hamming distance"
+readme="README.md"
+requires-python=">=3.11"
+license={text="MIT"}
+dependencies=[
+ "numpy>=2.0,<3","Pillow>=11,<13","scipy>=1.14,<2",
+ "fastapi>=0.115,<1","uvicorn[standard]>=0.34,<1","typer>=0.15,<1",
+ "python-multipart>=0.0.20,<1","psutil>=6,<8"
+]
+
+[project.optional-dependencies]
+desktop=["PySide6==6.8.3"]
+faiss=["faiss-cpu>=1.9"]
+ngt=["ngt>=2.3"]
+native=["faiss-cpu>=1.9","ngt>=2.3"]
+test=["pytest>=8.3,<10","httpx>=0.28,<1"]
+dev=["ruff>=0.9,<1"]
+
+[project.scripts]
+imagedupe="imagedupe.cli:app"
+
+[project.gui-scripts]
+imagedupe-desktop="imagedupe.desktop:main"
+
+[tool.setuptools]
+package-dir={""="src"}
+include-package-data=true
+
+[tool.setuptools.packages.find]
+where=["src"]
+
+[tool.setuptools.package-data]
+imagedupe=["web/*.html","web/*.css","web/*.js","assets/*.svg","assets/*.ico"]
+
+[tool.pytest.ini_options]
+addopts="-q"
+testpaths=["tests"]
+pythonpath=["src"]
